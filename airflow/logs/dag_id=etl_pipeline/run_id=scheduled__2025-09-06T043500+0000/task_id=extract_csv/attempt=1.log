@@ -85,3 +85,19 @@ FileNotFoundError: [Errno 2] No such file or directory: '/opt/airflow/csv_file/t
 [2025-09-07T05:31:30.892+0000] {taskinstance.py:1149} INFO - Marking task as SUCCESS. dag_id=etl_pipeline, task_id=extract_csv, execution_date=20250906T043500, start_date=20250907T053129, end_date=20250907T053130
 [2025-09-07T05:31:30.927+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
 [2025-09-07T05:31:30.955+0000] {taskinstance.py:3309} INFO - 1 downstream tasks scheduled from follow-on schedule check
+[2025-09-07T13:39:48.797+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: etl_pipeline.extract_csv scheduled__2025-09-06T04:35:00+00:00 [queued]>
+[2025-09-07T13:39:48.808+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: etl_pipeline.extract_csv scheduled__2025-09-06T04:35:00+00:00 [queued]>
+[2025-09-07T13:39:48.809+0000] {taskinstance.py:2193} INFO - Starting attempt 1 of 2
+[2025-09-07T13:39:48.822+0000] {taskinstance.py:2214} INFO - Executing <Task(PythonOperator): extract_csv> on 2025-09-06 04:35:00+00:00
+[2025-09-07T13:39:48.827+0000] {standard_task_runner.py:60} INFO - Started process 83 to run task
+[2025-09-07T13:39:48.833+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'etl_pipeline', 'extract_csv', 'scheduled__2025-09-06T04:35:00+00:00', '--job-id', '3', '--raw', '--subdir', 'DAGS_FOLDER/etl_pipeline.py', '--cfg-path', '/tmp/tmpyorbx1pl']
+[2025-09-07T13:39:48.835+0000] {standard_task_runner.py:88} INFO - Job 3: Subtask extract_csv
+[2025-09-07T13:39:48.909+0000] {task_command.py:423} INFO - Running <TaskInstance: etl_pipeline.extract_csv scheduled__2025-09-06T04:35:00+00:00 [running]> on host a051b0e1a226
+[2025-09-07T13:39:49.249+0000] {taskinstance.py:2510} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='etl_pipeline' AIRFLOW_CTX_TASK_ID='extract_csv' AIRFLOW_CTX_EXECUTION_DATE='2025-09-06T04:35:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-09-06T04:35:00+00:00'
+[2025-09-07T13:39:49.251+0000] {warnings.py:109} WARNING - /home/***/.local/lib/python3.8/site-packages/***/utils/context.py:315: AirflowContextDeprecationWarning: Accessing 'execution_date' from the template is deprecated and will be removed in a future version. Please use 'data_interval_start' or 'logical_date' instead.
+  warnings.warn(_create_deprecation_warning(k, replacements))
+
+[2025-09-07T13:39:49.964+0000] {python.py:202} INFO - Done. Returned value was: data/2025-09-06/csv/transacoes.csv
+[2025-09-07T13:39:49.997+0000] {taskinstance.py:1149} INFO - Marking task as SUCCESS. dag_id=etl_pipeline, task_id=extract_csv, execution_date=20250906T043500, start_date=20250907T133948, end_date=20250907T133949
+[2025-09-07T13:39:50.052+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2025-09-07T13:39:50.092+0000] {taskinstance.py:3309} INFO - 0 downstream tasks scheduled from follow-on schedule check

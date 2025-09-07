@@ -13,42 +13,42 @@ from sqlalchemy import create_engine
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2024, 1, 1),
+    'start_date': datetime(2025, 9, 1),
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
     'retry_delay': timedelta(minutes=5)
 }
 
-# Função para criar diretório se não existir
-def create_directory(date):
-    directory = f"data/{date.year}-{date.month:02d}-{date.day:02d}"
-    if not os.path.exists(directory):
-        os.makedirs(directory, exist_ok=True)
-    return directory
+# Função para criar a pasta com as datas de extração
+def criacao_pasta_data(date):
+    pasta = f"data/{date.year}-{date.month:02d}-{date.day:02d}"
+    if not os.path.exists(pasta):
+        os.makedirs(pasta, exist_ok=True)
+    return pasta
 
-# Função para extrair dados do CSV
+# Função para extrair dados do CSV vai receber informacoes do airflow como a data de execução
+# Extracao do CSV com o formato especificado
 def extract_csv(**context):
-    execution_date = context['execution_date']
-    directory = create_directory(execution_date)
-    
-    # Leitura do arquivo CSV de transações
+    data_execucao = context['execution_date']
+    pasta = criacao_pasta_data(data_execucao)
+    # Leitura do arquivo CSV de transações no Pandas
     df = pd.read_csv('/opt/airflow/csv_file/transacoes.csv') 
+    # Salvando no formato especificado com as datas 
+    saida_path = f"{pasta}/csv/transacoes.csv"
+    os.makedirs(os.path.dirname(saida_path), exist_ok=True)
+    df.to_csv(saida_path, index=False)
     
-    # Salvando no formato especificado
-    output_path = f"{directory}/csv/transacoes.csv"
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df.to_csv(output_path, index=False)
-    
-    return output_path
+    return saida_path
 
 # Função para extrair dados do SQL
 def extract_sql(**context):
-    execution_date = context['execution_date']
-    directory = create_directory(execution_date)
+    data_execucao = context['execution_date']
+    pasta = criacao_pasta_data(data_execucao)
     
-    # Conexão com o banco de dados
-    conn = psycopg2.connect(
+    # Conexão com o banco de dados utilizando o psycopg2
+    #para trabalhar com postgrees
+    conexao_banco = psycopg2.connect(
         dbname="banvic",
         user="data_engineer",
         password="v3rysecur&pas5w0rd",
@@ -57,34 +57,34 @@ def extract_sql(**context):
     )
     
     # Lista de tabelas para extrair
-    tables = ['agencias', 'clientes', 'colaborador_agencia', 'colaboradores', 
+    tabelas_banco = ['agencias', 'clientes', 'colaborador_agencia', 'colaboradores', 
               'contas', 'propostas_credito']
     
-    extracted_files = []
-    for table in tables:
-        # Leitura da tabela
-        query = f"SELECT * FROM {table}"
-        df = pd.read_sql_query(query, conn)
+    extracao_arquivos = []
+    for tabela_postgrees in tabelas_banco:
+        # Leitura das tabelas do banco
+        query = f"SELECT * FROM {tabela_postgrees}"
+        df_postgress = pd.read_sql_query(query, conexao_banco)
         
         # Salvando no formato especificado
-        output_path = f"{directory}/sql/{table}.csv"
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        df.to_csv(output_path, index=False)
-        extracted_files.append(output_path)
+        pasta_path = f"{pasta}/sql/{tabela_postgrees}.csv"
+        os.makedirs(os.path.dirname(pasta_path), exist_ok=True)
+        df_postgress.to_csv(pasta_path, index=False)
+        extracao_arquivos.append(pasta_path)
     
-    conn.close()
-    return extracted_files
+    conexao_banco.close()
+    return extracao_arquivos
 
 # Função para carregar dados no Data Warehouse
 def load_to_dw(**context):
-    execution_date = context['execution_date']
-    directory = create_directory(execution_date)
+    data_execucao = context['execution_date']
+    pasta = criacao_pasta_data(data_execucao)
     
     # Configuração da conexão com o Data Warehouse
     dw_engine = create_engine('postgresql://data_engineer:v3rysecur&pas5w0rd@db:5432/banvic_dw')
-    
+    directory = pasta
     # Carregando dados do CSV
-    csv_path = f"{directory}/csv/transacoes.csv"
+    csv_path = f"{pasta}/csv/transacoes.csv"
     if os.path.exists(csv_path):
         df_transacoes = pd.read_csv(csv_path)
         df_transacoes.to_sql('transacoes_dw', dw_engine, if_exists='replace', index=False)
